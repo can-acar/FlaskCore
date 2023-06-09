@@ -1,0 +1,2 @@
+class ControllerMeta:
+    pass

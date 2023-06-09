@@ -1,27 +1,35 @@
 import importlib
 import inspect
 import os
-import sys
+from typing import List
+
+from typing import TypeVar
 
 from flask import Flask
 
 from src.lib.container import Container
-from src.lib.container_builder import ContainerBuilder
 from src.lib.controller_base import ControllerBase
 from src.lib.inject import inject
 from src.lib.inject_dependencies import inject_dependencies
-from src.lib.resolve import resolve
+
+T = TypeVar('T')
+
+
+class ControllerEntry:
+    def __init__(self, controller, name: str):
+        self.controller = controller
+        self.name = name
 
 
 @inject
 class ControllerFactory:
     def __init__(self, app: Flask, container: Container):
         self.app = app
-        self.controllers = {}
+        self.controllers: List[ControllerEntry] = []
         self.container = container  # type: Container
 
     def use_controller(self):
-        items = sys.modules.items()
+
         self._gather_controllers()
 
         # for name, controller in self.controllers.items():
@@ -52,4 +60,4 @@ class ControllerFactory:
 
                                             obj.__init__ = inject_dependencies(obj.__init__,
                                                                                self.container)
-                                            self.controllers[name] = obj
+                                            self.controllers.append(ControllerEntry(obj, name))

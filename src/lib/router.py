@@ -1,7 +1,6 @@
 from flask import abort
 from flask import request
-
-
+from werkzeug.routing import Map
 
 from src.lib.controller_factory import ControllerFactory
 from src.lib.inject import inject
@@ -13,6 +12,9 @@ class Router:
         self.controller_factory = controller_factory
         self.controller_route_map = {}
 
+    def map_route(self, route, handler):
+        self.controller_route_map[route] = handler
+
     def dispatch_request(self):
         # Get the request's path and method.
         path = request.path
@@ -21,9 +23,11 @@ class Router:
         # Go through all controllers.
         for controller in self.controller_factory.controllers:
             # Check if the controller can handle the request.
-            if controller.can_handle_request(path, method):
-                # If it can, dispatch the request to the controller.
-                return controller.handle_request()
+            try:
+                if controller.can_handle_request(path, method):
+                    return controller.handle_request()
+            except AttributeError:
+                print(f"Error: controller is a {type(controller)}, not a Controller object. Value: {controller}")
 
         # If no controller can handle the request, return a 404 error.
         abort(404)
