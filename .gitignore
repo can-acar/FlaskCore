@@ -396,3 +396,11 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea
+.vscode
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+.idea/
+*.egg-info/
