@@ -1,7 +1,7 @@
 import functools
 import inspect
 
-from lib.container_builder import ContainerBuilder
+from src.lib.container_builder import ContainerBuilder
 
 
 def resolve(*deps):

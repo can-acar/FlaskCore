@@ -4,15 +4,17 @@ from typing import List
 from typing import Type
 from typing import TypeVar
 
-from container_entry import ContainerEntry
-from lib.scope import Scope
+from src.lib.container_entry import ContainerEntry
+from src.lib.scope import Scope
 
 T = TypeVar('T')
 
 
 class Container():
+    _builder: object
 
-    def __init__(self, registry: List[ContainerEntry]):
+    def __init__(self, registry: List[ContainerEntry], builder):
+        self.builder = builder
         self._registry = registry
 
     def resolve(self, member_type: Type[T]) -> T:
@@ -51,3 +53,7 @@ class Container():
             if param.annotation != inspect.Parameter.empty
         }
         return component(**dependencies)
+
+    @staticmethod
+    def instance(self):
+        return self.builder

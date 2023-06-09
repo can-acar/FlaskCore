@@ -1,10 +1,10 @@
 from typing import List
 from typing import TypeVar
 
-from container_entry import ContainerEntry
-from lib.container import Container
-from lib.scope import Scope
-from singleton import Singleton
+from src.lib.container import Container
+from src.lib.container_entry import ContainerEntry
+from src.lib.scope import Scope
+from src.lib.singleton import Singleton
 
 T = TypeVar('T')
 
@@ -16,7 +16,7 @@ class ContainerBuilder(metaclass=Singleton):
         self._registry: List[ContainerEntry] = []
 
     def build(self) -> Container:
-        container = Container(self._registry)
+        container = Container(self._registry, self)
         ContainerBuilder._container = container
         self.register_instance(self, Scope.SINGLETON)
         self.register_instance(container, Scope.SINGLETON)

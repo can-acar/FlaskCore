@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from container_builder import ContainerBuilder
+from src.lib.container_builder import ContainerBuilder
 
 
 class Module:
