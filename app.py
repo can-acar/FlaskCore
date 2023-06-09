@@ -23,6 +23,7 @@ async def start_flask_app(port):
     container = builder.build()
 
     controller_factory = container.resolve(ControllerFactory)
+
     controller_factory.use_controller()
 
     router = container.resolve(Router)

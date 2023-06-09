@@ -1,27 +1,39 @@
-from src.lib import router
+from src.lib.container_builder import ContainerBuilder
+from src.lib.router import Router
 
 
 def ApiRoute(template='api/[controller]/[action]'):
     def class_decorator(cls):
+        container = ContainerBuilder.instance()
+        router = container.resolve(Router)
         cls._api_route_template = template
-        cls_name = cls.__name__.lower()
-        if cls_name.endswith("controller"):
-            cls_name = cls_name[:-10]  # Remove "controller" suffix
+        cls_name = cls.__name__
+        cls_name_without_suffix = cls_name.lower()  # Remove "controller" suffix
+        if cls_name_without_suffix.endswith("controller"):
+            cls_name_without_suffix = cls_name_without_suffix[:-10]  # Remove "controller" suffix
 
-        for attr_name, attr_value in cls.__dict__.items():
-            if callable(attr_value):
-                # This is a method
-                action_name = attr_name.lower()
-                # Replace placeholders with actual values
-                actual_route = template.replace('[controller]', cls_name).replace('[action]', action_name)
-                # Here you can store the actual route in some way. For example:
-                attr_value._actual_route = actual_route
+            # ignore __init__ arguments to the constructor
 
-                # I want to callback to Route decorator to add the route to the Flask app
-                # I don't know how to do it, so I'll just store the route in a list
-                # and then I'll add it to the Flask app in the main.py file
-                router.Router.map_route(actual_route, attr_value)
+        for attr_name, handler in cls.__dict__.items():
+            if not attr_name.startswith("__"):
+                if callable(handler):
+                    # This is a method
+                    action_name = attr_name.lower() if not attr_name.startswith("__") else ''
+                    # Replace placeholders with actual values
+                    route_template = template.replace('[controller]', cls_name_without_suffix).replace('[action]',
+                                                                                                       action_name)
+                    # Remove double slashes (if any)
+                    actual_route = route_template.replace('//', '/')
+                    # Remove trailing slash (if any)
+                    actual_route = actual_route.rstrip('/')
+                    # Here you can store the actual route in some way. For example:
+                    handler.route = actual_route
+                    handler.endpoint = action_name
+
+                    router.map_route(actual_route, handler, cls_name, attr_name)
 
         return cls
 
     return class_decorator
+
+    # get http method decoratored methods

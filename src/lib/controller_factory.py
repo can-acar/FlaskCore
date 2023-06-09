@@ -54,10 +54,11 @@ class ControllerFactory:
                                 # module = __import__(f'{root}.{file[:-3]}', fromlist=[f'{file[:-3]}'])
                                 # inspect all classes in the file and find all controllers
                                 for name, obj in inspect.getmembers(module):
+                                    # if object has @ApiRoute decorator
+
                                     if inspect.isclass(obj) and issubclass(obj, ControllerBase):
                                         if hasattr(obj, 'is_api_controller') and obj.is_api_controller:
                                             # create an instance of the controller and inject dependencies
 
-                                            obj.__init__ = inject_dependencies(obj.__init__,
-                                                                               self.container)
+                                            obj.__init__ = inject_dependencies(obj.__init__, self.container)
                                             self.controllers.append(ControllerEntry(obj, name))
