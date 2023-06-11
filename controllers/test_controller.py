@@ -8,18 +8,17 @@ from src.lib.validate import validate
 
 
 @ApiController
-@ApiRoute('api/[controller]/[action]')
+@ApiRoute('api/v1')
 class TestController(ControllerBase):
 
     def __init__(self, test_service: TestService):
         self._test_service = test_service
 
-    @HttpGet('/test/{test_key}-{test_value}')
-    @validate(TestRequest, to="test")
-    def test(self, test: TestRequest):
-        return self._test_service.test(test)
+    @HttpGet('test/{test_key:alpha}-{test_value:alpha}')
+    def test(self, test_key: str, test_value: str):
+        return {test_key: test_value}
 
-    @HttpGet('/test2/{test_key}-{test_value}')
+    @HttpGet('test2/{test_key}-{test_value}')
     @validate(TestRequest, to="test")
     def test2(self, test: TestRequest):
         return self._test_service.test(test)
