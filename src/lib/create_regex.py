@@ -4,7 +4,7 @@ param_formats = {
     'alpha': '[a-zA-Z]+',
     'int': '[0-9]+',
     'float': '[0-9]*\.[0-9]+',
-    'guid': '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
+    'guid': '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
     'alphanum': '[a-zA-Z0-9]+',
     'path': '.+',
     'uuid': '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}',
@@ -19,62 +19,32 @@ param_formats = {
     'second': '[0-5][0-9]',
     'datetime': '[12][0-9]{3}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]',
     'file': '[^/]+',
-    'any': '.+',
+    'any': '[^/]*',
     'string': '[^/]+',
     'bool': 'true|false',
     'boolean': 'true|false',
     'regex': '[^/]+',
     'email': '[^/]+',
+    'min': '[0-9]{%s,}',
+    'max': '[0-9]{0,%s}',
+    'between': '[%s-%s]',
 }
 
 
 def create_regex(route):
-    # Define regex patterns for different parameter types
+    for match in re.finditer(r'\{(\w+?)(?::(\w+))?(?:\((.*?)\))?\??\}', route):
+        param_name, param_type, param_value = match.groups()
+        optional = match.group(0).endswith("?}")
+        param_format = param_formats.get(param_type or 'any', '.+')
 
-    # Default format if no format is specified in the parameter
-    default_format = '[^/]+'
-    for param_format in param_formats:
-        param_regex = param_formats[param_format]
-        route = re.sub(r'\{(\w+):' + param_format + ':min\((\d+)\):max\((\d+)\)\}',
-                       r'(?P<\1>' + param_regex + '{\2,\3})', route)
+        if param_type in ['min', 'max', 'between']:
+            values = map(int, param_value.split(","))
+            param_format = param_format % tuple(values)
+        elif param_type == 'regex':
+            param_format = param_value
 
-    # Replace {param:regex(regex rule)} with the corresponding regex pattern
-    route = re.sub(r'\{(\w+):regex\(([^)]+)\)\}', r'(?P<\1>\2)', route)
+        if optional:
+            param_format = f'(?:{param_format})?'
 
-    # Replace {param:type} with the corresponding regex pattern
-    for param_format in param_formats:
-        route = re.sub(r'\{(\w+):' + param_format + r'\}', r'(?P<\1>' + param_formats[param_format] + ')', route)
-
-    # Replace remaining {param} occurrences with the default format
-    route = re.sub(r'\{(\w+)\}', r'(?P<\1>' + default_format + ')', route)
-
+        route = route.replace(match.group(0), f'(?P<{param_name}>{param_format})')
     return route
-
-# def create_regex(route):
-#     route = route.replace("{", "(?P<")
-#     route = route.replace("}", ">[^/]+)")
-#     route = route.replace(":int", ":[0-9]+")
-#     route = route.replace(":guid", ":[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
-#     return re.compile(route)
-# 'int': r'\d+',
-# 'guid': r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
-# 'any': r'[^/]+',
-# 'alpha': r'[a-zA-Z]+',
-# 'alphanum': r'[a-zA-Z0-9]+',
-# 'path': r'.+',
-# 'uuid': r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}',
-# 'slug': r'[a-z0-9]+(?:-[a-z0-9]+)*',
-# 'short_slug': r'[a-z]+(?:-[a-z]+)*',
-# 'float': r'[0-9]+(?:\.[0-9]+)?',
-# 'decimal': r'[0-9]+(?:\.[0-9]+)?',
-# 'date': r'\d{4}-\d{2}-\d{2}',
-# 'datetime': r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}',
-# 'time': r'\d{2}:\d{2}:\d{2}',
-# 'email': r'[^@]+@[^@]+\.[^@]+',
-# 'min(int)': r'\d+',
-# 'max(int)': r'\d+',
-#     route = re.sub(r'{(?P<param>[^:]+):(?P<format>[^}]+)}',
-#                    lambda m: '(?P<{}>{})'.format(m.group('param'), route_param_formats.get(m.group('format'), '[^/]+')),
-#                    route)
-#     # route = re.sub(r'{(?P<param>[^}]+)}', r'(?P<\1>[^/]+)', route)
-#     return re.compile(route)

@@ -2,7 +2,6 @@ import functools
 import inspect
 
 from src.lib.container_builder import ContainerBuilder
-from src.lib.inject_dependencies import inject_dependencies
 
 
 def ApiController(cls):
@@ -22,7 +21,3 @@ def ApiController(cls):
 
     cls.__init__ = __init__
     return cls
-
-    # container = ContainerBuilder.instance()
-    # cls.__init__ = inject_dependencies(cls.__init__, container)
-    # return cls

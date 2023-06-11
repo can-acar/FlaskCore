@@ -1,5 +1,4 @@
 import inspect
-from typing import Generic
 from typing import List
 from typing import Type
 from typing import TypeVar
