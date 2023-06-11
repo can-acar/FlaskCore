@@ -35,17 +35,3 @@ def validate(model, to=None):
         return sync_wrapper
 
     return decorator
-
-# def validate(model, to=None):
-#     def decorator(func):
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-#             data = request.get_json()
-#             model_instance = model(**data)
-#             if not model_instance.is_valid():
-#                 return jsonify(model_instance.errors), 400
-#             return func(*args, **kwargs, model=model_instance)
-#
-#         return wrapper
-#
-#     return decorator

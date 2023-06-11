@@ -1,5 +1,4 @@
 from src.lib.container_builder import ContainerBuilder
-from src.lib.create_regex import create_regex
 from src.lib.router import Router
 
 
@@ -27,8 +26,6 @@ def ApiRoute(template='api/[controller]/[action]'):
                     # bu route özelliğini genel route şablonuna ekleyin.
                     if hasattr(handler, 'route'):
                         route_template += handler.route
-
-                    # actual_route = create_regex(route_template)
 
                     router.map_route(route_template, handler, cls_name, attr_name)
 

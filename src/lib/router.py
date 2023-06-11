@@ -37,38 +37,21 @@ class Router:
         path = path.lstrip('/')
 
         method = request.method
-
+        is_matched = False
         # Go through all routes in the map.
         for route_meta in self.controller_route_map:
             # Match the 'api/v1/test/(?P<test_key>[^/]+)-(?P<test_value>[^/]+)' == 'api/v1/test/1-2'
             if re.match(route_meta.route, path):
                 for entry in self.controller_factory.controllers:
                     if entry.controller.__name__ == route_meta.controller:
+                        is_matched = True
                         controller = entry.controller()
-
                         return route_meta.handler(controller)
-            else:
-                header = {'Content-Type': 'application/json'}
-                return Response(json.dumps({'message': 'Not found.', 'status': False}), status=404, headers=header)
+
+        if not is_matched:
+            header = {'Content-Type': 'application/json'}
+            return Response(json.dumps({'message': 'Not found.', 'status': False}), status=404, headers=header)
 
         # If no route can handle the request, return a 404 error.
         header = {'Content-Type': 'application/json'}
         return Response(json.dumps({'message': 'Not found.', 'status': False}), status=404, headers=header)
-
-        # , route_meta.action
-        ##return getattr(controller, route_meta.action)()
-        # call the handler function
-        # return route_meta.handler(controller, route_meta.action)
-        # if route_meta.route == path:
-        #     for entry in self.controller_factory.controllers:
-        #         if entry.controller.__name__ == route_meta.controller:
-        #             controller  = entry.controller()
-        #             return getattr(controller, route_meta.action)()
-
-        # If no route can handle the request, return a 404 error.
-        # and decorate
-        # the
-        # response
-        # with the handler's response
-        # return getattr(controller, route_meta.action)()
-        # # return route_meta.handler(getattr(controller, route_meta.action)())
