@@ -6,7 +6,6 @@ from src.lib.container_builder import ContainerBuilder
 
 def ApiController(cls):
     orig_init = cls.__init__
-    cls.is_controller = True
     cls.is_api_controller = True
 
     @functools.wraps(cls.__init__)

@@ -7,4 +7,3 @@ class ControllerBase:
     @abstractmethod
     def __init__(self, app: Flask) -> object:
         self.app = app
-

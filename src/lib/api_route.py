@@ -18,6 +18,7 @@ def ApiRoute(template='api/[controller]/[action]'):
                     route_template = template.replace('[controller]', cls.__name__.lower())
                     action_name = attr_name.lower()
                     route_template = route_template.replace('[action]', action_name)
+                    methods = []
                     # add slash to end of route template
                     if not route_template.endswith('/'):
                         route_template += '/'
@@ -27,7 +28,11 @@ def ApiRoute(template='api/[controller]/[action]'):
                     if hasattr(handler, 'route'):
                         route_template += handler.route
 
-                    router.map_route(route_template, handler, cls_name, attr_name)
+                    # get http method decoratored methods
+                    if hasattr(handler, 'methods'):
+                        methods = handler.methods
+
+                    router.map_route(route_template, handler, cls_name, attr_name, methods)
 
         return cls
 

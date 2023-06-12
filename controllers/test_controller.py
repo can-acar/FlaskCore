@@ -22,5 +22,5 @@ class TestController(ControllerBase):
 
     @HttpGet
     # 'test3/{test_key}-{test_value:between(3, 5)?}'
-    def test3(self, test_key, test_value):
-        return {test_key: test_value}
+    def test3(self):
+        return {'test': 'test'}

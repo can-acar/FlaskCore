@@ -4,31 +4,17 @@ from flask import Flask
 
 from modules.api_module import ApiModule
 from src.lib.container_builder import ContainerBuilder
-from src.lib.controller_base import ControllerBase
-from src.lib.controller_factory import ControllerFactory
-from src.lib.router import Router
-from src.lib.scope import Scope
-
+from src.lib.flask_core import FlaskCore
 
 
 async def start_flask_app(port):
     builder = ContainerBuilder()
     app = Flask(__name__)
-    builder.register_instance(app, scope=Scope.SINGLETON)
-    builder.register(ControllerBase, scope=Scope.TRANSIENT)
-    builder.register(ControllerFactory, scope=Scope.SINGLETON)
-    builder.register(Router, scope=Scope.SINGLETON)
+    flask_core = FlaskCore(app, builder)
     builder.register_module(ApiModule())
+    flask_core.useCoreService()
 
-    container = builder.build()
-
-    controller_factory = container.resolve(ControllerFactory)
-
-    controller_factory.use_controller()
-
-    router = container.resolve(Router)
-
-    app.dispatch_request = router.dispatch_request
+    flask_core.useApp(lambda builder: builder)
 
     app.run(debug=True, host="0.0.0.0", port=port)
 

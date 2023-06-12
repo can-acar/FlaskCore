@@ -9,32 +9,22 @@ from flask import Flask
 
 from src.lib.container import Container
 from src.lib.controller_base import ControllerBase
+from src.lib.controller_meta import ControllerMeta
 from src.lib.inject import inject
 from src.lib.inject_dependencies import inject_dependencies
 
 T = TypeVar('T')
 
 
-class ControllerEntry:
-    def __init__(self, controller, name: str):
-        self.controller = controller
-        self.name = name
-
-
 @inject
 class ControllerFactory:
     def __init__(self, app: Flask, container: Container):
         self.app = app
-        self.controllers: List[ControllerEntry] = []
+        self.controllers: List[ControllerMeta] = []
         self.container = container  # type: Container
 
     def use_controller(self):
-
         self._gather_controllers()
-
-        # for name, controller in self.controllers.items():
-        # controller = self.container.resolve(controller)
-        # self.app.add_url_rule(controller.route, view_func=controller.dispatch_request, methods=controller.methods)
 
     def _gather_controllers(self):
 
@@ -61,4 +51,4 @@ class ControllerFactory:
                                             # create an instance of the controller and inject dependencies
 
                                             obj.__init__ = inject_dependencies(obj.__init__, self.container)
-                                            self.controllers.append(ControllerEntry(obj, name))
+                                            self.controllers.append(ControllerMeta(obj, name, obj.api_route_template))
