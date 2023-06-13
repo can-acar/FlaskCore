@@ -40,8 +40,6 @@ class ControllerFactory:
                                 module_name = file[:-3]  # Strip the .py at the end
                                 # import the file
                                 module = importlib.import_module(f'controllers.{module_name}')
-
-                                # module = __import__(f'{root}.{file[:-3]}', fromlist=[f'{file[:-3]}'])
                                 # inspect all classes in the file and find all controllers
                                 for name, obj in inspect.getmembers(module):
                                     if inspect.isclass(obj) and issubclass(obj, ControllerBase):
@@ -49,4 +47,6 @@ class ControllerFactory:
                                             if hasattr(obj, 'api_route_template') and obj.api_route_template:
                                                 controller = inject_dependencies(obj.__init__, self.container)
 
-                                                self.controllers.append(ControllerMeta(controller, name, obj.api_route_template))
+                                                self.controllers.append(
+                                                    ControllerMeta(controller, name, obj.api_route_template))
+                                                break

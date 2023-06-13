@@ -17,3 +17,8 @@ class CustomeExtension:
     @staticmethod
     def toLowerCase2(self):
         return self.lower()
+
+
+def test():
+    test_string = 'test'
+    print(test_string.toLowerCase2())

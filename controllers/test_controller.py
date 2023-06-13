@@ -25,6 +25,7 @@ class TestController(ControllerBase):
 
     @HttpGet('test')
     def with_route(self):
+
         return self.Ok({'test': 'test-action'})
 
     @HttpGet
