@@ -27,7 +27,7 @@ class ControllerFactory:
         self._gather_controllers()
 
     def _gather_controllers(self):
-
+        controller_info = {}
         dir_path = self.app.root_path
         # get all 'controllers' folders in the project
         for root, dirs, files in os.walk(dir_path):
@@ -44,11 +44,9 @@ class ControllerFactory:
                                 # module = __import__(f'{root}.{file[:-3]}', fromlist=[f'{file[:-3]}'])
                                 # inspect all classes in the file and find all controllers
                                 for name, obj in inspect.getmembers(module):
-                                    # if object has @ApiRoute decorator
-
                                     if inspect.isclass(obj) and issubclass(obj, ControllerBase):
                                         if hasattr(obj, 'is_api_controller') and obj.is_api_controller:
-                                            # create an instance of the controller and inject dependencies
+                                            if hasattr(obj, 'api_route_template') and obj.api_route_template:
+                                                controller = inject_dependencies(obj.__init__, self.container)
 
-                                            obj.__init__ = inject_dependencies(obj.__init__, self.container)
-                                            self.controllers.append(ControllerMeta(obj, name, obj.api_route_template))
+                                                self.controllers.append(ControllerMeta(controller, name, obj.api_route_template))

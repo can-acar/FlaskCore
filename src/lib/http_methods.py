@@ -1,77 +1,112 @@
 import re
+import asyncio
 from functools import wraps
 from flask import request
 from src.lib.create_regex import create_regex
 
 
-def HttpGet(template=None):
-    if callable(template):
-        route_regex = ''
-        fn = template
-    else:
-        route_regex = create_regex(template)
+def HttpGet(route=None):
+    def wrapper(fn):
+        fn.is_route = True
+        fn.route = route
+        fn.endpoint = fn.__name__
+        fn.methods = [].append(fn.methods) if hasattr(fn, 'methods') else ['GET']
+        if callable(route):
+            route_regex = create_regex(route.__name__)
+        else:
+            route_regex = create_regex(route) if route else ''
 
-        def decorator(fn):
-            @wraps(fn)
-            def sync_wrapper(*args, **kwargs):
-                if request.method == 'GET':
-                    api_route_template = args[0].api_route_template
-                    if not api_route_template.startswith('/'):
-                        api_route_template = '/' + api_route_template
-                    if not api_route_template.endswith('/'):
-                        api_route_template += '/'
-                    full_path = api_route_template + route_regex
-                    match = re.match(full_path, request.path)
-                    if match:
-                        kwargs.update(match.groupdict())
-                        return fn(*args, **kwargs)
-                else:
-                    raise ValueError("Invalid request method. Expected GET.")
+        @wraps(fn)
+        def sync_wrapper(*args, **kwargs):
+            if request.method == 'GET':
+                api_route_template = args[0].api_route_template
+                if not api_route_template.startswith('/'):
+                    api_route_template = '/' + api_route_template
 
-            if template:
-                sync_wrapper.is_http_get = True
-                sync_wrapper.route = route_regex
-                sync_wrapper.endpoint = fn.__name__
-                sync_wrapper.methods = ['GET']
-                sync_wrapper.is_route = True
+                if not api_route_template.endswith('/'):
+                    api_route_template += '/'
+                full_path = api_route_template + route_regex
+                match = re.match(full_path, request.path)
+                if match:
+                    kwargs.update(match.groupdict())
+                    return fn(*args, **kwargs)
             else:
-                sync_wrapper.is_route = False
+                raise ValueError(f"Invalid request method. Expected GET.")
 
-            @wraps(fn)
-            async def async_wrapper(*args, **kwargs):
-                if request.method == 'GET':
-                    api_route_template = args[0].api_route_template
-                    if not api_route_template.startswith('/'):
-                        api_route_template = '/' + api_route_template
-                    if not api_route_template.endswith('/'):
-                        api_route_template += '/'
-                    full_path = api_route_template + route_regex
-                    match = re.match(full_path, request.path)
-                    if match:
-                        kwargs.update(match.groupdict())
-                        return await fn(*args, **kwargs)
-                else:
-                    raise ValueError("Invalid request method. Expected GET.")
+        async def async_wrapper(*args, **kwargs):
+            if request.method == 'GET':
+                api_route_template = args[0].api_route_template
+                if not api_route_template.startswith('/'):
+                    api_route_template = '/' + api_route_template
 
-            if template:
-                async_wrapper.is_http_get = True
-                async_wrapper.route = route_regex
-                async_wrapper.endpoint = fn.__name__
-                async_wrapper.methods = ['GET']
-                async_wrapper.is_route = True
+                if not api_route_template.endswith('/'):
+                    api_route_template += '/'
+                full_path = api_route_template + route_regex
+                match = re.match(full_path, request.path)
+                if match:
+                    kwargs.update(match.groupdict())
+                    return await fn(*args, **kwargs)
             else:
-                async_wrapper.is_route = False
+                raise ValueError(f"Invalid request method. Expected GET.")
 
-            if request.is_async:
-                return async_wrapper
+        if asyncio.iscoroutinefunction(fn):
+            return async_wrapper
+        else:
+            return sync_wrapper
+
+    wrapper.methods = ['GET']
+    return wrapper
+
+
+def HttpPost(route=None):
+    def wrapper(fn):
+        fn.is_route = True
+        fn.route = route
+        fn.endpoint = fn.__name__
+        fn.methods = [].append(fn.methods) if hasattr(fn, 'methods') else ['POST']
+        if callable(route):
+            route_regex = create_regex(route.__name__)
+        else:
+            route_regex = create_regex(route) if route else ''
+
+        @wraps(fn)
+        def sync_wrapper(*args, **kwargs):
+            if request.method == 'POST':
+                api_route_template = args[0].api_route_template
+                if not api_route_template.startswith('/'):
+                    api_route_template = '/' + api_route_template
+
+                if not api_route_template.endswith('/'):
+                    api_route_template += '/'
+                full_path = api_route_template + route_regex
+                match = re.match(full_path, request.path)
+                if match:
+                    kwargs.update(match.groupdict())
+                    return fn(*args, **kwargs)
             else:
-                return sync_wrapper
+                raise ValueError(f"Invalid request method. Expected POST.")
 
-        return decorator
+        async def async_wrapper(*args, **kwargs):
+            if request.method == 'GET':
+                api_route_template = args[0].api_route_template
+                if not api_route_template.startswith('/'):
+                    api_route_template = '/' + api_route_template
 
-    fn.is_http_get = True
-    fn.route = fn.__name__
-    fn.endpoint = fn.__name__
-    fn.methods = ['GET']
-    fn.is_route = False
-    return fn
+                if not api_route_template.endswith('/'):
+                    api_route_template += '/'
+                full_path = api_route_template + route_regex
+                match = re.match(full_path, request.path)
+                if match:
+                    kwargs.update(match.groupdict())
+                    return await fn(*args, **kwargs)
+            else:
+                raise ValueError(f"Invalid request method. Expected POST.")
+
+        if asyncio.iscoroutinefunction(fn):
+            return async_wrapper
+        else:
+            return sync_wrapper
+
+    wrapper.methods = ['POST']
+
+    return wrapper

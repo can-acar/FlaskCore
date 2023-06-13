@@ -2,22 +2,12 @@ import json
 import re
 from typing import List
 
-from flask import abort
 from flask import request
 from flask import Response
-from werkzeug.routing import Map
 
 from src.lib.controller_factory import ControllerFactory
 from src.lib.inject import inject
-
-
-class RouteMeta:
-    def __init__(self, route, handler, controller, action, methods: []):
-        self.route = route
-        self.handler = handler
-        self.controller = controller
-        self.action = action
-        self.methods: [] = methods
+from src.lib.route_meta import RouteMeta
 
 
 @inject
@@ -46,15 +36,15 @@ class Router:
             # Match the 'api/v1/test/(?P<test_key>[^/]+)-(?P<test_value>[^/]+)' == 'api/v1/test/1-2'
 
             if re.match(route_meta.route, path):
-                if method not in route_meta.methods:
-                    return Response(json.dumps({'message': 'Method Not Allowed', 'status': False}),
-                                    status=400,
-                                    headers=header)
+                # if method not in route_meta.methods:
+                #     return Response(json.dumps({'message': 'Method Not Allowed', 'status': False}),
+                #                     status=400,
+                #                     headers=header)
 
                 for entry in self.controller_factory.controllers:
-                    if entry.controller.__name__ == route_meta.controller:
+                    if entry.name == route_meta.controller:
                         is_matched = True
-                        controller = entry.controller()
+                        controller = entry.controller
                         break
 
                 if controller is not None:
