@@ -24,9 +24,9 @@ class TestController(ControllerBase):
     # 'test3/{test_key}-{test_value:between(3, 5)?}'
 
     @HttpGet('test')
-    def test_action(self):
-        return {'test': 'test-action'}
+    def with_route(self):
+        return self.Ok({'test': 'test-action'})
 
     @HttpGet
-    def test3(self):
-        return {'test': 'test'}
+    def without_route(self):
+        return self.Ok({'test': 'test-action'})

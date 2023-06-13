@@ -3,6 +3,7 @@ from typing import TypeVar
 
 from src.lib.container import Container
 from src.lib.container_entry import ContainerEntry
+from src.lib.deferred_callback import DeferredCallback
 from src.lib.scope import Scope
 from src.lib.singleton import Singleton
 
@@ -12,8 +13,11 @@ T = TypeVar('T')
 class ContainerBuilder(metaclass=Singleton):
     _container = None
 
+    # list callbacks
+
     def __init__(self):
         self._registry: List[ContainerEntry] = []
+        self._callbacks: List[DeferredCallback] = []
 
     def build(self) -> Container:
         container = Container(self._registry, self)
