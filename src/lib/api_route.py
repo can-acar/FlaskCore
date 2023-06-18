@@ -12,7 +12,7 @@ def ApiRoute(template='api/[controller]/[action]'):
         container = ContainerBuilder.instance()
         router = container.resolve(Router)
         cls.is_api_route = True
-        cls.api_route_template = api_route_template
+        cls.api_route_template = template
         cls.route_data = router.controller_route_map
         cls_name = cls.__name__
         cls_name_without_suffix = cls_name.lower()  # Remove "controller" suffix
@@ -22,19 +22,20 @@ def ApiRoute(template='api/[controller]/[action]'):
         for attr_name, handler in cls.__dict__.items():
             if not attr_name.startswith("__"):
                 if callable(handler):
-                    route_template = api_route_template.replace('[controller]', cls.__name__.lower())
-                    action_name = attr_name.lower()
-                    # has route property in handler
+                    if '[controller]' in api_route_template or '[action]' in api_route_template:
+                        route_template = api_route_template.replace('[controller]', cls.__name__.lower())
+                        action_name = attr_name.lower()
 
-                    if hasattr(handler, 'route'):
-                        action_name = handler.route.split('/')[-1]
-                        route_template = route_template.replace('[action]', action_name)
+                        if hasattr(handler, 'route'):
+                            route_template = route_template.replace('[action]', handler.route)
+                        else:
+                            route_template = route_template.replace('[action]', action_name)
                     else:
-                        route_template = route_template.replace('[action]', action_name)
-
-                    # if not define [action] in route template, use method name as action name
-                    if '[action]' not in route_template:
-                        route_template = route_template + '/' + action_name
+                        route_template = api_route_template
+                        if hasattr(handler, 'route'):
+                            route_template = route_template + '/' + handler.route
+                        else:
+                            route_template = route_template + '/' + attr_name.lower()
 
                     methods = []
 

@@ -19,17 +19,24 @@ def HttpGet(route=None):
         @wraps(fn)
         def sync_wrapper(*args, **kwargs):
             if request.method == 'GET':
-                api_route_template = args[0].api_route_template
-                if not api_route_template.startswith('/'):
-                    api_route_template = '/' + api_route_template
+                # define api route template
+                if hasattr(args[0], 'api_route_template'):
+                    api_route_template = args[0].api_route_template
+                    if not api_route_template.startswith('/'):
+                        api_route_template = '/' + api_route_template
 
-                if not api_route_template.endswith('/'):
-                    api_route_template += '/'
-                full_path = api_route_template + route_regex
-                match = re.match(full_path, request.path)
-                if match:
-                    kwargs.update(match.groupdict())
-                    return fn(*args, **kwargs)
+                    if not api_route_template.endswith('/'):
+                        api_route_template += '/'
+                    full_path = api_route_template + route_regex
+                    match = re.match(full_path, request.path)
+                    if match:
+                        kwargs.update(match.groupdict())
+                        return fn(*args, **kwargs)
+
+                else:
+                    raise ValueError(f"Invalid request method. Expected GET.")
+
+
             else:
                 raise ValueError(f"Invalid request method. Expected GET.")
 

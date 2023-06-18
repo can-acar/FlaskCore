@@ -11,7 +11,7 @@ class ControllerBase:
     request = None
     response = None
     route_data: List = []
-    api_route_template: str = ''
+    api_route_template: str = None
 
     @abstractmethod
     def __init__(self, app: Flask):
