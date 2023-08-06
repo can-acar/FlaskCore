@@ -29,7 +29,7 @@ def ApiRoute(template='api/[controller]/[action]'):
                         route_template += handler.route
 
                     # actual_route = create_regex(route_template)
-
+                    methods = []
                     router.map_route(route_template, handler, cls_name, attr_name)
 
         return cls

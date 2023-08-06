@@ -43,7 +43,7 @@ class Router:
             # Match the 'api/v1/test/(?P<test_key>[^/]+)-(?P<test_value>[^/]+)' == 'api/v1/test/1-2'
             if re.match(route_meta.route, path):
                 for entry in self.controller_factory.controllers:
-                    if entry.controller.__name__ == route_meta.controller:
+                    if entry.name == route_meta.controller:
                         controller = entry.controller()
 
                         return route_meta.handler(controller)

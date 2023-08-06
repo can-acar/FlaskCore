@@ -9,8 +9,10 @@ from flask import Flask
 
 from src.lib.container import Container
 from src.lib.controller_base import ControllerBase
+from src.lib.controller_meta import ControllerMeta
 from src.lib.inject import inject
 from src.lib.inject_dependencies import inject_dependencies
+
 
 T = TypeVar('T')
 
@@ -55,10 +57,15 @@ class ControllerFactory:
                                 # inspect all classes in the file and find all controllers
                                 for name, obj in inspect.getmembers(module):
                                     # if object has @ApiRoute decorator
-
                                     if inspect.isclass(obj) and issubclass(obj, ControllerBase):
                                         if hasattr(obj, 'is_api_controller') and obj.is_api_controller:
+                                            if hasattr(obj, 'api_route_template') and obj.api_route_template:
+                                                controller = inject_dependencies(obj.__init__, self.container)
+
+                                                self.controllers.append(ControllerMeta(controller, name, obj.api_route_template))
+                                                break
                                             # create an instance of the controller and inject dependencies
 
-                                            obj.__init__ = inject_dependencies(obj.__init__, self.container)
-                                            self.controllers.append(ControllerEntry(obj, name))
+                                            # obj.__init__ = inject_dependencies(obj.__init__, self.container)
+                                            # obj = self.container.resolve(obj)
+                                            # self.controllers.append(ControllerEntry(obj, name))
