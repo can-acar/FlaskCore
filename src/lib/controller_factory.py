@@ -46,7 +46,9 @@ class ControllerFactory:
                                         if hasattr(obj, 'is_api_controller') and obj.is_api_controller:
                                             if hasattr(obj, 'api_route_template') and obj.api_route_template:
                                                 controller = inject_dependencies(obj.__init__, self.container)
-
-                                                self.controllers.append(
-                                                    ControllerMeta(controller, name, obj.api_route_template))
+                                                self.controllers.append(ControllerMeta(controller, name, obj.api_route_template))
                                                 break
+                                        if hasattr(obj, 'is_controller') and obj.is_controller:
+                                            controller = inject_dependencies(obj.__init__, self.container)
+                                            self.controllers.append(ControllerMeta(controller, name, None))
+                                            break

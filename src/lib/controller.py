@@ -4,9 +4,9 @@ import inspect
 from src.lib.container_builder import ContainerBuilder
 
 
-def ApiController(cls):
+def Controller(cls):
     orig_init = cls.__init__
-    cls.is_api_controller = True
+    cls.is_api_controller = False
     cls.controller_name = cls.__name__.lower()
 
     @functools.wraps(cls.__init__)
@@ -21,6 +21,3 @@ def ApiController(cls):
 
     cls.__init__ = __init__
     return cls
-
-
-

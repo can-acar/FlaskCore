@@ -10,6 +10,7 @@ def HttpGet(route=None):
         fn.is_route = True
         fn.route = route
         fn.endpoint = fn.__name__
+        fn.handler = fn
         fn.methods = [].append(fn.methods) if hasattr(fn, 'methods') else ['GET']
         if callable(route):
             route_regex = create_regex(route.__name__)
@@ -18,25 +19,38 @@ def HttpGet(route=None):
 
         @wraps(fn)
         def sync_wrapper(*args, **kwargs):
+            fn_details = fn
             if request.method == 'GET':
                 # define api route template
                 if hasattr(args[0], 'api_route_template'):
                     api_route_template = args[0].api_route_template
                     if not api_route_template.startswith('/'):
                         api_route_template = '/' + api_route_template
-
+                    # TODO: Fix this
                     if not api_route_template.endswith('/'):
-                        api_route_template += '/'
-                    full_path = api_route_template + route_regex
+                        api_route_template = api_route_template + '/'
+                    full_path = api_route_template
                     match = re.match(full_path, request.path)
                     if match:
                         kwargs.update(match.groupdict())
                         return fn(*args, **kwargs)
+                if hasattr(fn_details, 'api_route_template'):
+                    api_route_template = fn_details.api_route_template
+                    if not api_route_template.startswith('/'):
+                        api_route_template = '/' + api_route_template
+                    # TODO: Fix this
+                    # if not api_route_template.endswith('/'):
+                    #     api_route_template = api_route_template + '/'
+                    full_path = api_route_template
+                    match = re.match(full_path, request.path)
+                    if match:
+                        # call the action in the controller
+                        kwargs.update(match.groupdict())
+                        return fn.action(*args, **kwargs)
+                        # return fn(*args, **kwargs)
 
                 else:
                     raise ValueError(f"Invalid request method. Expected GET.")
-
-
             else:
                 raise ValueError(f"Invalid request method. Expected GET.")
 

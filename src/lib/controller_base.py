@@ -5,6 +5,8 @@ from flask import Flask
 from flask import Request
 from flask import Response
 
+from src.lib.resolve import resolve
+
 
 class ControllerBase:
     app: Flask = None
@@ -12,6 +14,7 @@ class ControllerBase:
     response = None
     route_data: List = []
     api_route_template: str = None
+    is_api_controller: bool = False
 
     @abstractmethod
     def __init__(self, app: Flask):
@@ -21,7 +24,7 @@ class ControllerBase:
         self.route_data: List = []
         self.api_route_template = ''
 
-    def Ok(self, data):
+    def Ok(self, data) -> Response:
         return self.response(data, 200)
 
     def Json(self, data):

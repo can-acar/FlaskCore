@@ -45,6 +45,9 @@ class Router:
                     if entry.name == route_meta.controller:
                         is_matched = True
                         controller = entry.controller
+                        controller.route = entry.route
+                        controller.action = route_meta.action
+                        controller.methods = route_meta.methods
                         controller.api_route_template = route_meta.route
                         break
 

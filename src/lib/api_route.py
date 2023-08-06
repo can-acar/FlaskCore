@@ -14,6 +14,7 @@ def ApiRoute(template='api/[controller]/[action]'):
         cls.is_api_route = True
         cls.api_route_template = template
         cls.route_data = router.controller_route_map
+        cls.router_instance = router
         cls_name = cls.__name__
         cls_name_without_suffix = cls_name.lower()  # Remove "controller" suffix
         if cls_name_without_suffix.endswith("controller"):
@@ -30,6 +31,7 @@ def ApiRoute(template='api/[controller]/[action]'):
                             route_template = route_template.replace('[action]', handler.route)
                         else:
                             route_template = route_template.replace('[action]', action_name)
+
                     else:
                         route_template = api_route_template
                         if hasattr(handler, 'route'):
