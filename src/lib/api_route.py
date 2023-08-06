@@ -1,13 +1,20 @@
+from flask import Request
+from flask import Response
+
 from src.lib.container_builder import ContainerBuilder
-from src.lib.create_regex import create_regex
 from src.lib.router import Router
 
 
 def ApiRoute(template='api/[controller]/[action]'):
+    api_route_template = template
+
     def class_decorator(cls):
         container = ContainerBuilder.instance()
         router = container.resolve(Router)
-        cls.api_route_template = template
+        cls.api_route_template = api_route_template
+        cls.route = router
+        # cls.request = Request
+        # cls.response = Response
         cls_name = cls.__name__
         cls_name_without_suffix = cls_name.lower()  # Remove "controller" suffix
         if cls_name_without_suffix.endswith("controller"):

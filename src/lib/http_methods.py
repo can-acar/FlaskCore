@@ -1,6 +1,5 @@
 import re
 from functools import wraps
-
 from flask import request
 
 from src.lib.create_regex import create_regex
@@ -53,7 +52,8 @@ def HttpGet(route=None):
                     return fn(*args, **kwargs)
             else:
                 fn.is_http_get = False
-                raise ValueError("Invalid request method. Expected GET.")
+                return {'message': 'Method not allowed.', 'status': False}  # Response("Invalid request method. Expected GET.", status=400)
+                # raise ValueError("Invalid request method. Expected GET.")
 
         if route:
             wrapper.is_http_get = True

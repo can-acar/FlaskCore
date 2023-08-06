@@ -10,7 +10,6 @@ from src.lib.router import Router
 from src.lib.scope import Scope
 
 
-
 async def start_flask_app(port):
     builder = ContainerBuilder()
     app = Flask(__name__)

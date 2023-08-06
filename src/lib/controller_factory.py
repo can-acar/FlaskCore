@@ -9,24 +9,22 @@ from flask import Flask
 
 from src.lib.container import Container
 from src.lib.controller_base import ControllerBase
+from src.lib.controller_meta import ControllerMeta
 from src.lib.inject import inject
 from src.lib.inject_dependencies import inject_dependencies
 
 T = TypeVar('T')
 
 
-class ControllerEntry:
-    def __init__(self, controller, name: str):
-        self.controller = controller
-        self.name = name
-
-
 @inject
 class ControllerFactory:
     def __init__(self, app: Flask, container: Container):
         self.app = app
-        self.controllers: List[ControllerEntry] = []
+        self.controllers: List[ControllerMeta] = []
         self.container = container  # type: Container
+
+    def add_controller(self, meta: ControllerMeta):
+        self.controllers.append(meta)
 
     def use_controller(self):
 
@@ -53,12 +51,26 @@ class ControllerFactory:
 
                                 # module = __import__(f'{root}.{file[:-3]}', fromlist=[f'{file[:-3]}'])
                                 # inspect all classes in the file and find all controllers
+
+                                controller = None
+                                base_controller = None
+                                is_controller = False
                                 for name, obj in inspect.getmembers(module):
                                     # if object has @ApiRoute decorator
 
-                                    if inspect.isclass(obj) and issubclass(obj, ControllerBase):
-                                        if hasattr(obj, 'is_api_controller') and obj.is_api_controller:
-                                            # create an instance of the controller and inject dependencies
+                                    # is not a subclass of ControllerBase
 
-                                            obj.__init__ = inject_dependencies(obj.__init__, self.container)
-                                            self.controllers.append(ControllerEntry(obj, name))
+                                    if inspect.isclass(obj) and issubclass(obj, ControllerBase) and obj == ControllerBase:
+                                        # is subclass of ControllerBase get subclass instance
+                                        base_controller = inject_dependencies(obj.__init__, self.container)
+
+                                    if inspect.isclass(obj) and issubclass(obj, ControllerBase) and obj != ControllerBase and not inspect.isabstract(obj):
+                                        controller = inject_dependencies(obj, self.container)
+                                        controller.base_controller = base_controller
+                                        controller.api_route_template = obj.api_route_template
+                                        controller.name = name
+                                        is_controller = True
+                                        break
+
+                                if is_controller:
+                                    self.controllers.append(ControllerMeta(controller, controller.name, controller.route, controller.api_route_template, base_controller))

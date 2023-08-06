@@ -24,7 +24,10 @@ def inject_dependencies(original_class, container: Container):
         # Call the original __init__ method with the new parameters
         orig_init(self, *args, **kwargs)
 
-    # Replace the original __init__ method with the new one
+        # Replace the original __init__ method with the new one
+        # if __init__ is abstract method
+
     original_class.__init__ = new_init
+    # call abstract method
 
     return original_class
