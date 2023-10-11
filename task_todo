@@ -1,0 +1,100 @@
+
+
+@ApiController
+@ApiRoute("api/v1/[controller]/[action]/[id?]")       # api/v1/test/[action]/[id?]
+class TestController(ControllerBase):
+
+    def __init__(self, service: TestService):
+        self.service = service
+
+    @HttpGet                                           # api/v1/test/without_route_get/1
+    def without_route_get(self, id: int) -> TestModel: # handler : TestController.without_route_get
+        return self.service.get(id)                    # action  : without_route_get
+                                                       # controller : TestController
+                                                       # endpoint : TestController.without_route_get
+                                                       # route_template : api/v1/test/[action]/[id?]
+                                                       # route : api/v1/test/without_route_get/{id}
+
+    @HttpGet("get/{id}")                                   # api/v1/test/get/1
+    def with_route_get(self, id: int) -> TestModel:        # handler : TestController.with_route_get
+        return self.service.get(id)                        # action  : with_route_get
+                                                           # controller : TestController
+                                                           # endpoint : TestController.with_route_get
+                                                           # route_template : api/v1/test/get/{id}
+                                                           # route : api/v1/test/get/{id}
+
+
+
+@ApiController
+@ApiRoute("api/v1/sample/[action]/[id?]")       # api/v1/sample/[action]/[id?]
+class TestController(ControllerBase):
+
+    def __init__(self, service: TestService):
+        self.service = service
+
+    @HttpGet                                           # api/v1/sample/without_route_get/1
+    def without_route_get(self, id: int) -> TestModel: # handler : TestController.without_route_get
+        return self.service.get(id)                    # action  : without_route_get
+                                                       # controller : TestController
+                                                       # endpoint : TestController.without_route_get
+                                                       # route_template : api/v1/test/[action]/[id?]
+                                                       # route : api/v1/sample/without_route_get/{id}
+
+    @HttpGet("get/{id}")                                   # api/v1/sample/get/1
+    def with_route_get(self, id: int) -> TestModel:        # handler : TestController.with_route_get
+        return self.service.get(id)                        # action  : with_route_get
+                                                           # controller : TestController
+                                                           # endpoint : TestController.with_route_get
+                                                           # route_template : api/v1/sample/get/{id}
+                                                           # route : api/v1/sample/get/{id}
+
+
+
+@ApiController
+@ApiRoute("api/v1/sample/[action]/[id?]")       # api/v1/sample/[action]/[id?]
+class TestController(ControllerBase):
+
+    def __init__(self, service: TestService):
+        self.service = service
+
+    @HttpGet                                           # api/v1/sample/without_route_get/1
+    def without_route_get(self, id: int) -> TestModel: # handler : TestController.without_route_get
+        return self.service.get(id)                    # action  : without_route_get
+                                                       # controller : TestController
+                                                       # endpoint : TestController.without_route_get
+                                                       # route_template : api/v1/test/[action]/[id?]
+                                                       # route : api/v1/sample/without_route_get/{id}
+
+    @HttpGet("get/{id}")                                   # api/v1/sample/get/1
+    def with_route_get(self, id: int) -> TestModel:        # handler : TestController.with_route_get
+        return self.service.get(id)                        # action  : with_route_get
+                                                           # controller : TestController
+                                                           # endpoint : TestController.with_route_get
+                                                           # route_template : api/v1/sample/get/{id}
+                                                           # route : api/v1/sample/get/{id}
+
+
+
+@ApiController
+@ApiRoute("api/v1/sample")       # api/v1/sample
+class TestController(ControllerBase):
+
+    def __init__(self, service: TestService):
+        self.service = service
+
+    @HttpGet                                           # api/v1/sample/without_route_get/1
+    def without_route_get(self, id: int) -> TestModel: # handler : TestController.without_route_get
+        return self.service.get(id)                    # action  : without_route_get
+                                                       # controller : TestController
+                                                       # endpoint : TestController.without_route_get
+                                                       # route_template : api/v1/test/[action]/[id?]
+                                                       # route : api/v1/sample/without_route_get/{id}
+
+    @HttpGet("get/{id}")                                   # api/v1/sample/get/1
+    def with_route_get(self, id: int) -> TestModel:        # handler : TestController.with_route_get
+        return self.service.get(id)                        # action  : with_route_get
+                                                           # controller : TestController
+                                                           # endpoint : TestController.with_route_get
+                                                           # route_template : api/v1/sample/get/{id}
+                                                           # route : api/v1/sample/get/{id}
+

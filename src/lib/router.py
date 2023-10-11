@@ -36,11 +36,6 @@ class Router:
             # Match the 'api/v1/test/(?P<test_key>[^/]+)-(?P<test_value>[^/]+)' == 'api/v1/test/1-2'
 
             if re.match(route_meta.route, path):
-                # if method not in route_meta.methods:
-                #     return Response(json.dumps({'message': 'Method Not Allowed', 'status': False}),
-                #                     status=400,
-                #                     headers=header)
-
                 for entry in self.controller_factory.controllers:
                     if entry.name == route_meta.controller:
                         is_matched = True

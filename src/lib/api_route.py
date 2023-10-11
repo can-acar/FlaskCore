@@ -4,6 +4,14 @@ from src.lib.container_builder import ContainerBuilder
 from src.lib.router import Router
 
 
+def create_endpoint(handler, cls_name, action_name):
+    @functools.wraps(handler)
+    def wrapper(*args, **kwargs):
+        return cls_name + '.' + action_name
+
+    return wrapper
+
+
 def ApiRoute(template='api/[controller]/[action]'):
     api_route_template = template
 
@@ -22,20 +30,22 @@ def ApiRoute(template='api/[controller]/[action]'):
         for attr_name, handler in cls.__dict__.items():
             if not attr_name.startswith("__"):
                 if callable(handler):
-                    if '[controller]' in api_route_template or '[action]' in api_route_template:
-                        route_template = api_route_template.replace('[controller]', cls.__name__.lower())
-                        action_name = attr_name.lower()
+                    route_template = api_route_template
+                    action_name = attr_name.lower()
+                    endpoint = f"{cls_name}.{action_name}"
+                    handler.api_route_template = api_route_template
 
-                        if hasattr(handler, 'route'):
-                            route_template = route_template.replace('[action]', handler.route)
-                        else:
-                            route_template = route_template.replace('[action]', action_name)
+                    if hasattr(handler, 'route'):
+                        route_template = handler.route
+                        action_name = handler.route
+                        handler.route_template = route_template
+                        handler.endpoint = endpoint
                     else:
-                        route_template = api_route_template
-                        if hasattr(handler, 'route'):
-                            route_template = route_template + '/' + handler.route
-                        else:
-                            route_template = route_template + '/' + attr_name.lower()
+                        route_template = api_route_template  # .replace("[controller]", cls_name).replace("[action]", action_name)
+                        handler.route_template = route_template
+                        action_name = attr_name.lower()
+                        # Create to strint to function
+                        handler.endpoint = endpoint
 
                     methods = []
 
@@ -45,7 +55,7 @@ def ApiRoute(template='api/[controller]/[action]'):
                             if method not in methods:
                                 methods.append(method)
 
-                    router.map_route(route_template, handler, cls_name, attr_name, methods)
+                    router.map_route(route_template, handler, cls_name, action_name, methods)
 
         return cls
 

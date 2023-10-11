@@ -11,6 +11,7 @@ def HttpGet(route=None):
         fn.route = route
         fn.endpoint = fn.__name__
         fn.methods = [].append(fn.methods) if hasattr(fn, 'methods') else ['GET']
+        fn.handler = fn
         if callable(route):
             route_regex = create_regex(route.__name__)
         else:
@@ -20,14 +21,17 @@ def HttpGet(route=None):
         def sync_wrapper(*args, **kwargs):
             if request.method == 'GET':
                 # define api route template
-                if hasattr(args[0], 'api_route_template'):
-                    api_route_template = args[0].api_route_template
+                if hasattr(fn, 'api_route_template'):
+                    api_route_template = fn.api_route_template
                     if not api_route_template.startswith('/'):
                         api_route_template = '/' + api_route_template
 
-                    if not api_route_template.endswith('/'):
-                        api_route_template += '/'
-                    full_path = api_route_template + route_regex
+                    # /api/[controller]/[action] => replace [controller] and [action] with controller name and action name
+                    full_path = api_route_template.replace('[controller]', fn.__class__.__name__.lower()).replace('[action]', route_regex)
+
+                    # if not api_route_template.endswith('/'):
+                    #     api_route_template += '/'
+                    # full_path = api_route_template + route_regex
                     match = re.match(full_path, request.path)
                     if match:
                         kwargs.update(match.groupdict())
